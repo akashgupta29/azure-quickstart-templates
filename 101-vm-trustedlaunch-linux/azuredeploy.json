@@ -137,13 +137,13 @@
       "RHEL-83": "83-gen2",
       "SUSE-15-SP2": "GEN2"
     },
-    "nicName": "myVMNic",
+    "nicName": "[toLower(concat(parameters('vmName'), '-', take(replace(guid(parameters('vmName')), '-', ''), 10)))]",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "Subnet",
     "subnetPrefix": "10.0.0.0/24",
-    "virtualNetworkName": "MyVNET",
+    "virtualNetworkName": "[toLower(concat(parameters('vmName'), '-', take(replace(guid(parameters('vmName')), '-', ''), 10)))]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
-    "networkSecurityGroupName": "default-NSG",
+    "networkSecurityGroupName": "[toLower(concat(parameters('vmName'), '-', take(replace(guid(parameters('vmName')), '-', ''), 10)))]",
     "linuxConfiguration": {
       "disablePasswordAuthentication": true,
       "ssh": {
