@@ -8,7 +8,7 @@
       "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/linuxAzureSecurityAgent-deployIfNotExists.json')]",
       "definitionName": "5f8eb305-9c9f-4abe-9bb0-df220d9faba2",
       "assignmentName": "LinuxAzureSecurityAgentPolicyAssignment",
-      "assignmentDisplayName": "Deploy One Agent monitor onboarding to Azure Security Center for Linux virtual machine",
+      "assignmentDisplayName": "Deploy - Configure Linux machines to automatically install the Azure Security agent",
       "assignmentRoleDefinitionName": "LinuxAzureSecurityAgentPolicyAssignmentRoleDefinition",
       "assignmentRoleDefinitionGUIDs": [
         "b24988ac-6180-42a0-ab88-20f7382dd24c",
@@ -228,12 +228,12 @@
       "name": "[variables('trustedLaunchInitiative')['policySetName']]",
       "dependsOn": [
         "[variables('windowsSBPolicy')['definitionDeploymentName']]",
-        "[variables('vTPMPolicy')['definitionDeploymentName']]",
+        "[variables('vTPMPolicy')['definitionDeploymentName']]"
       ],
       "location": "[deployment().location]",
       "properties": {
         "displayName": "[variables('trustedLaunchInitiative')['policySetDisplayName']]",
-        "description": "[variables('trustedLaunchInitiative')['policySetDescription']]"
+        "description": "[variables('trustedLaunchInitiative')['policySetDescription']]",
         "policyType": "Custom",
         "policyDefinitions": [
           {
