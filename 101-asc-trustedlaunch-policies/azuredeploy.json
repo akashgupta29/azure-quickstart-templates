@@ -15,7 +15,7 @@
       ]
     },
     "systemAssignedIdentityVmssPolicy": {
-      "definitionDeploymentName": "[concat('SystemAssignedIdentityVmssPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
+      "definitionDeploymentName": "[concat('SystemIdentityVmssPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
       "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/systemAssignedIdentity-vmss-modify.json')]",
       "definitionName": "adabec6d-d3c1-48f3-b31e-497f6c941585",
       "assignmentName": "SystemAssignedIdentityVmssPolicyAssignment",
