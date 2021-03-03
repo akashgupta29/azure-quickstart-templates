@@ -21,7 +21,7 @@
       "apiVersion": "2018-05-01",
       "name": "adabec6d-d3c1-48f3-b31e-497f6c941585",
       "properties": {
-        "displayName": "Add system-assigned managed identity on virtual machine scale sets to enable Guest Attestation",
+        "displayName": "Add system-assigned managed identity to virtual machine scale sets to enable Guest Attestation",
         "policyType": "Custom",
         "mode": "All",
         "description": "This policy adds system-assigned managed identity to virtual machine scale sets that supports Guest Attestation but do not have a system-assigned managed identity.",
@@ -42,7 +42,7 @@
                 "exists": "true"
               },
               {
-                "value": "[requestContext().apiVersion]",
+                "value": "[[requestContext().apiVersion]",
                 "greaterOrEquals": "2018-10-01"
               },
               {
