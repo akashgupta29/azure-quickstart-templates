@@ -19,12 +19,12 @@
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2018-05-01",
-      "name": "3cf2ab00-13f1-4d0c-8971-2ac933341a7e",
+      "name": "adabec6d-d3c1-48f3-b31e-497f6c941585",
       "properties": {
-        "displayName": "Add system-assigned managed identity to virtual machines to enable Guest Attestation",
+        "displayName": "Add system-assigned managed identity to virtual machine scale sets to enable Guest Attestation",
         "policyType": "Custom",
         "mode": "All",
-        "description": "This policy adds system-assigned managed identity to virtual machines that supports Guest Attestation but do not have a system-assigned managed identity.",
+        "description": "This policy adds system-assigned managed identity to virtual machine scale sets that supports Guest Attestation but do not have a system-assigned managed identity.",
         "metadata": {
           "category": "Compute",
           "version": "1.0.0-preview",
@@ -35,10 +35,10 @@
             "allOf": [
               {
                 "field": "type",
-                "equals": "Microsoft.Compute/virtualMachines"
+                "equals": "Microsoft.Compute/virtualMachineScaleSets"
               },
               {
-                "field": "Microsoft.Compute/virtualMachines/securityProfile.uefiSettings",
+                "field": "Microsoft.Compute/virtualMachineScaleSets/virtualMachineProfile.securityProfile.uefiSettings",
                 "exists": "true"
               },
               {

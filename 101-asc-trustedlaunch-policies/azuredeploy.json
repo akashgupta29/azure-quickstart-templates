@@ -8,8 +8,19 @@
       "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/systemAssignedIdentity-modify.json')]",
       "definitionName": "3cf2ab00-13f1-4d0c-8971-2ac933341a7e",
       "assignmentName": "SystemAssignedIdentityPolicyAssignment",
-      "assignmentDisplayName": "Add system-assigned managed identity to enable Guest Attestation",
+      "assignmentDisplayName": "Add system-assigned managed identity to virtual machines to enable Guest Attestation",
       "assignmentRoleDefinitionName": "SystemAssignedIdentityPolicyAssignmentRoleDefinition",
+      "assignmentRoleDefinitionGUIDs": [
+        "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+      ]
+    },
+    "systemAssignedIdentityVmssPolicy": {
+      "definitionDeploymentName": "[concat('SystemIdentityVmssPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
+      "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/systemAssignedIdentity-vmss-modify.json')]",
+      "definitionName": "adabec6d-d3c1-48f3-b31e-497f6c941585",
+      "assignmentName": "SystemAssignedIdentityVmssPolicyAssignment",
+      "assignmentDisplayName": "Add system-assigned managed identity to virtual machine scale sets to enable Guest Attestation",
+      "assignmentRoleDefinitionName": "SystemAssignedIdentityVmssPolicyAssignmentRoleDefinition",
       "assignmentRoleDefinitionGUIDs": [
         "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
       ]
@@ -44,6 +55,28 @@
       "assignmentName": "WindowsGuestAttestationExtensionPolicyAssignment",
       "assignmentDisplayName": "Configure supported Windows virtual machines to automatically install the Guest Attestation extension",
       "assignmentRoleDefinitionName": "WindowsGuestAttestationExtensionPolicyAssignmentRoleDefinition",
+      "assignmentRoleDefinitionGUIDs": [
+        "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+      ]
+    },
+    "linuxGuestAttestationExtensionVmssPolicy": {
+      "definitionDeploymentName": "[concat('LinuxGuestAttExtVmssPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
+      "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/linuxGuestAttestationExtension-vmss-deployIfNotExists.json')]",
+      "definitionName": "57c2e3f0-98cf-4c3b-aa6b-e8f70726e74e",
+      "assignmentName": "LinuxGuestAttestationExtensionVmssPolicyAssignment",
+      "assignmentDisplayName": "Configure supported Linux virtual machine scale sets to automatically install the Guest Attestation extension",
+      "assignmentRoleDefinitionName": "LinuxGuestAttestationExtensionVmssPolicyAssignmentRoleDefinition",
+      "assignmentRoleDefinitionGUIDs": [
+        "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+      ]
+    },
+    "windowsGuestAttestationExtensionVmssPolicy": {
+      "definitionDeploymentName": "[concat('WindowsGuestAttExtVmssPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
+      "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/windowsGuestAttestationExtension-vmss-deployIfNotExists.json')]",
+      "definitionName": "c9b2ae08-09e2-4f0e-bb43-b60bf0135bdf",
+      "assignmentName": "WindowsGuestAttestationExtensionVmssPolicyAssignment",
+      "assignmentDisplayName": "Configure supported Windows virtual machinescale sets to automatically install the Guest Attestation extension",
+      "assignmentRoleDefinitionName": "WindowsGuestAttestationExtensionVmssPolicyAssignmentRoleDefinition",
       "assignmentRoleDefinitionGUIDs": [
         "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
       ]
@@ -121,6 +154,54 @@
       "copy": {
         "name": "[variables('systemAssignedIdentityPolicy')['assignmentRoleDefinitionName']]",
         "count": "[length(variables('systemAssignedIdentityPolicy')['assignmentRoleDefinitionGUIDs'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('systemAssignedIdentityVmssPolicy')['definitionDeploymentName']]",
+      "location": "[deployment().location]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('systemAssignedIdentityVmssPolicy')['definitionDeploymentURI']]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('systemAssignedIdentityVmssPolicy')['assignmentName']]",
+      "dependsOn": [
+        "[variables('systemAssignedIdentityVmssPolicy')['definitionDeploymentName']]"
+      ],
+      "location": "[deployment().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "enforcementMode": "Default",
+        "displayName": "[variables('systemAssignedIdentityVmssPolicy')['assignmentDisplayName']]",
+        "scope": "[subscription().id]",
+        "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', variables('systemAssignedIdentityVmssPolicy')['definitionName'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "name": "[guid(subscription().id, variables('systemAssignedIdentityVmssPolicy')['assignmentRoleDefinitionName'], variables('systemAssignedIdentityVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('systemAssignedIdentityVmssPolicy')['assignmentName'])]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('systemAssignedIdentityVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('systemAssignedIdentityVmssPolicy')['assignmentName']), '2019-09-01', 'full').identity.principalId]",
+        "scope": "[subscription().id]",
+        "principalType": "ServicePrincipal"
+      },
+      "copy": {
+        "name": "[variables('systemAssignedIdentityVmssPolicy')['assignmentRoleDefinitionName']]",
+        "count": "[length(variables('systemAssignedIdentityVmssPolicy')['assignmentRoleDefinitionGUIDs'])]"
       }
     },
     {
@@ -265,6 +346,102 @@
       "copy": {
         "name": "[variables('windowsGuestAttestationExtensionPolicy')['assignmentRoleDefinitionName']]",
         "count": "[length(variables('windowsGuestAttestationExtensionPolicy')['assignmentRoleDefinitionGUIDs'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('linuxGuestAttestationExtensionVmssPolicy')['definitionDeploymentName']]",
+      "location": "[deployment().location]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('linuxGuestAttestationExtensionVmssPolicy')['definitionDeploymentURI']]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentName']]",
+      "dependsOn": [
+        "[variables('linuxGuestAttestationExtensionVmssPolicy')['definitionDeploymentName']]"
+      ],
+      "location": "[deployment().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "enforcementMode": "Default",
+        "displayName": "[variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentDisplayName']]",
+        "scope": "[subscription().id]",
+        "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', variables('linuxGuestAttestationExtensionVmssPolicy')['definitionName'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "name": "[guid(subscription().id, variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionName'], variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentName'])]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentName']), '2019-09-01', 'full').identity.principalId]",
+        "scope": "[subscription().id]",
+        "principalType": "ServicePrincipal"
+      },
+      "copy": {
+        "name": "[variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionName']]",
+        "count": "[length(variables('linuxGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('windowsGuestAttestationExtensionVmssPolicy')['definitionDeploymentName']]",
+      "location": "[deployment().location]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('windowsGuestAttestationExtensionVmssPolicy')['definitionDeploymentURI']]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentName']]",
+      "dependsOn": [
+        "[variables('windowsGuestAttestationExtensionVmssPolicy')['definitionDeploymentName']]"
+      ],
+      "location": "[deployment().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "enforcementMode": "Default",
+        "displayName": "[variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentDisplayName']]",
+        "scope": "[subscription().id]",
+        "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', variables('windowsGuestAttestationExtensionVmssPolicy')['definitionName'])]"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "name": "[guid(subscription().id, variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionName'], variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentName'])]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'][copyIndex()])]",
+        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentName']), '2019-09-01', 'full').identity.principalId]",
+        "scope": "[subscription().id]",
+        "principalType": "ServicePrincipal"
+      },
+      "copy": {
+        "name": "[variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionName']]",
+        "count": "[length(variables('windowsGuestAttestationExtensionVmssPolicy')['assignmentRoleDefinitionGUIDs'])]"
       }
     },
     {
