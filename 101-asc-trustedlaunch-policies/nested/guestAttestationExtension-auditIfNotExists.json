@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.1",
+  "parameters": {
+    "effect": {
+      "type": "string",
+      "defaultValue": "AuditIfNotExists",
+      "allowedValues": [
+        "AuditIfNotExists",
+        "Disabled"
+      ],
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2018-05-01",
+      "name": "a21f8c92-9e22-4f09-b759-50500d1d2dda",
+      "properties": {
+        "displayName": "Install Guest Attestation extension on supported virtual machines",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "Install Guest Attestation extension on supported virtual machines to allow Azure Security Center to proactively attest and monitor the boot integrity.",
+        "metadata": {
+          "SecurityCenter": {
+            "RemediationDescription": "1. Navigate to <a href='https://ms.portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade/Remediation'>Azure Policy Remediation</a> blade.<br>2. Search \"Guest Attestation extension\".<br>3. Click on the shortlisted policies.<br>4. Review non-compliant virtual machines and click the Remediate button.",
+            "Severity": "Low"
+          },
+          "category": "Compute",
+          "version": "2.0.0-preview",
+          "preview": true
+        },
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/securityProfile.uefiSettings",
+                "exists": "true"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/securityProfile.uefiSettings.secureBootEnabled",
+                "equals": "true"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/securityProfile.uefiSettings.vTpmEnabled",
+                "equals": "true"
+              }
+            ]
+          },
+          "then": {
+            "effect": "[parameters('effect')]",
+            "details": {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "existenceCondition": {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                    "in": [
+                      "Microsoft.Azure.Security.WindowsAttestation",
+                      "Microsoft.Azure.Security.LinuxAttestation"
+                    ]
+                  },
+                  {
+                    "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                    "equals": "GuestAttestation"
+                  },
+                  {
+                    "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                    "in": [
+                      "Succeeded",
+                      "Provisioning succeeded"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
