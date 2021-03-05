@@ -94,12 +94,12 @@
     "guestAttestationPolicy": {
       "definitionDeploymentName": "[concat('GuestAttestationPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
       "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/guestAttestationExtension-auditIfNotExists.json')]",
-      "definitionName": "672fe5a1-2fcd-42d7-b85d-902b6e28c6ff"
+      "definitionName": "a21f8c92-9e22-4f09-b759-50500d1d2dda"
     },
     "guestAttestationVMSSPolicy": {
       "definitionDeploymentName": "[concat('GuestAttestationVMSSPolicyDefinitionDeployment-', uniqueString(deployment().name))]",
       "definitionDeploymentURI": "[uri(variables('templatesBaseURI'), 'nested/guestAttestationExtension-vmss-auditIfNotExists.json')]",
-      "definitionName": "a21f8c92-9e22-4f09-b759-50500d1d2dda"
+      "definitionName": "672fe5a1-2fcd-42d7-b85d-902b6e28c6ff"
     },
     "trustedLaunchInitiative": {
       "policySetName": "6b0c4354-3b52-46f9-bf2f-4af79b4e42f0",

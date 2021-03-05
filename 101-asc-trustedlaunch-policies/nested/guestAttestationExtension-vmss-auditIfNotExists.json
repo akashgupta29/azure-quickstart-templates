@@ -58,7 +58,7 @@
           "then": {
             "effect": "[parameters('effect')]",
             "details": {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
               "existenceCondition": {
                 "allOf": [
                   {
